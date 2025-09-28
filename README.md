@@ -10,4 +10,22 @@ I also realized that I don’t just want to hear the athan from my phone I want 
 The Idea is to run the python script on the Raspberry Pi that fetches the athan times everyday and plays athan from a local file.
 
 #### how to install?
-TBD
+To install and run everything for this project as simply as possible, you can use the following command on your device:
+
+```bash
+git clone https://github.com/aahajj/athan-home.git
+cd athan-home
+python3 -m venv .env
+source .env/bin/activate
+pip3 install -r requirements.txt
+python3 main.py 
+```
+
+The command will:
+1. Download the project,
+2. Install all required dependencies,
+3. And start the program.
+
+If you want to start the program in the background you will need to add & at the end of the command. ``python3 main.py &``
+
+Make sure you have Git, Python3 and pip3 installed before running the command. 
