@@ -1,10 +1,12 @@
 from apscheduler.schedulers.background import BackgroundScheduler
+from logging.handlers import RotatingFileHandler
 from fastapi import HTTPException
 from datetime import datetime
 from bs4 import BeautifulSoup
 
 import playsound
 import requests
+import logging
 import json
 import time
 import re
@@ -14,6 +16,19 @@ AUDIO = os.path.abspath("resources/athan.mp3")
 
 # Change Masjid_id to your nearest masjid. For example: "al-haram-makkah-saudi-arabia".
 MASJID_ID = "your-masjid-id-here"
+
+# --- Configure logging ---
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+              RotatingFileHandler(
+              filename="athan.log",
+              maxBytes=1_000_000,
+              backupCount=5,
+    )]
+)
+logger = logging.getLogger(__name__)
 
 def fetch_prayer_times_from_mawaqit(masjid_id:str):
     """
@@ -66,7 +81,14 @@ def fetch_prayer_times_from_mawaqit(masjid_id:str):
 
 def play_athan() -> None:
     """plays athan from the audio file."""
-    playsound.playsound(AUDIO)
+    # Check if the audio file exists
+    if not os.path.exists(AUDIO):
+            raise FileNotFoundError(f"Athan audio file not found at {AUDIO}")
+    try:
+        playsound.playsound(AUDIO)
+    except Exception as e:
+        logging.error(f"Error playing Athan: {e}")
+        return
     return
 
 def schedule_tasks(scheduler) -> None:
@@ -79,7 +101,7 @@ def schedule_tasks(scheduler) -> None:
         run_at = datetime.combine(today, t)
         if run_at > datetime.now():
             scheduler.add_job(play_athan, "date", run_date=run_at)
-            print("Scheduled task for", run_at)
+            logging.info(f"Scheduled task for {run_at}")
     return
 
 def main() -> None:
